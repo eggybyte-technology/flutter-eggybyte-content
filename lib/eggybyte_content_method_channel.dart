@@ -18,22 +18,13 @@ class MethodChannelEggybyteContent extends EggybyteContentPlatform {
   }
 
   @override
-  Future<void> initializeSdk({
-    required String pangleAppId,
-    required String pangleAppName,
-    required String eggyByteConfigFileName,
+  Future<Map<String, dynamic>?> initializeKsSdk({
+    required String ksAppId,
+    required String ksAppName,
   }) async {
-    await methodChannel.invokeMethod('initializeSdk', {
-      'pangleAppId': pangleAppId,
-      'pangleAppName': pangleAppName,
-      'eggyByteConfigFileName': eggyByteConfigFileName,
-    });
-  }
-
-  @override
-  Future<Map<String, dynamic>?> triggerDpsdkStart() async {
     final result = await methodChannel.invokeMethod<Map<dynamic, dynamic>>(
-      'triggerDpsdkStart',
+      'initializeKsSdk',
+      {'ksAppId': ksAppId, 'ksAppName': ksAppName},
     );
     return result?.map((key, value) => MapEntry(key.toString(), value));
   }

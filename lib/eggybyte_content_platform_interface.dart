@@ -27,16 +27,15 @@ abstract class EggybyteContentPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<void> initializeSdk({
-    required String pangleAppId,
-    required String pangleAppName,
-    required String eggyByteConfigFileName,
+  /// Initializes the Kuaishou (KS) SDK.
+  ///
+  /// [ksAppId] The App ID provided by Kuaishou.
+  /// [ksAppName] The App Name for your application.
+  Future<Map<String, dynamic>?> initializeKsSdk({
+    required String ksAppId,
+    required String ksAppName,
   }) {
-    throw UnimplementedError('initializeSdk() has not been implemented.');
-  }
-
-  Future<Map<String, dynamic>?> triggerDpsdkStart() {
-    throw UnimplementedError('triggerDpsdkStart() has not been implemented.');
+    throw UnimplementedError('initializeKsSdk() has not been implemented.');
   }
 
   /// Displays an immersive short video experience.

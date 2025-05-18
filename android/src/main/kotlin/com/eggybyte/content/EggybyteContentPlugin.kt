@@ -3,14 +3,9 @@ package com.eggybyte.content
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.NonNull
-import com.bytedance.applog.AppLog
-import com.bytedance.applog.InitConfig
-import com.bytedance.applog.util.UriConstants
-import com.bytedance.sdk.dp.DPSdk
-import com.bytedance.sdk.dp.DPSdkConfig
-import com.bytedance.sdk.openadsdk.TTAdConfig
-import com.bytedance.sdk.openadsdk.TTAdConstant
-import com.bytedance.sdk.openadsdk.TTAdSdk
+import com.kwad.sdk.api.KsAdSDK
+import com.kwad.sdk.api.KsInitCallback
+import com.kwad.sdk.api.SdkConfig
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -41,6 +36,26 @@ class EggybyteContentPlugin :
         @JvmStatic
         var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding? = null
             private set // Ensure it's only set within this class or companion
+        
+        // Kuaishou SDK Initialization status
+        @JvmStatic
+        private var ksSdkHasBeenInitialized: Boolean = false
+
+        @JvmStatic
+        fun isKsSdkInitialized(): Boolean {
+            return ksSdkHasBeenInitialized
+        }
+    }
+
+    // Method channel names
+    private object MethodNames {
+        const val GET_PLATFORM_VERSION = "getPlatformVersion"
+        const val INITIALIZE_KS_SDK = "initializeKsSdk" // Kuaishou
+    }
+
+    // Platform view type names
+    private object ViewTypes {
+        const val KS_DUAL_FEED_VIEW = "com.eggybyte/ks_dual_feed_view" // Kuaishou
     }
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -50,73 +65,50 @@ class EggybyteContentPlugin :
         channel.setMethodCallHandler(this)
         applicationContext = flutterPluginBinding.applicationContext
 
-        // Register PlatformView factories
-        val immersiveVideoFactory = ImmersiveVideoFactory { activity }
+        // Register Kuaishou PlatformView factories
+        val ksDualFeedFactory = KsDualFeedFactory({ activity }, flutterPluginBinding.binaryMessenger)
         flutterPluginBinding.platformViewRegistry.registerViewFactory(
-            "com.eggybyte/immersive_video_view",
-            immersiveVideoFactory
+            ViewTypes.KS_DUAL_FEED_VIEW,
+            ksDualFeedFactory
         )
-        PluginLogger.i(CLASS_NAME, "ImmersiveVideoFactory registered with viewType: com.eggybyte/immersive_video_view")
-
-        val gridVideoFactory = GridVideoFactory { activity }
-        flutterPluginBinding.platformViewRegistry.registerViewFactory(
-            "com.eggybyte/grid_video_view",
-            gridVideoFactory
-        )
-        PluginLogger.i(CLASS_NAME, "GridVideoFactory registered with viewType: com.eggybyte/grid_video_view")
+        PluginLogger.i(CLASS_NAME, "KsDualFeedFactory registered with viewType: ${ViewTypes.KS_DUAL_FEED_VIEW}")
 
         PluginLogger.i(CLASS_NAME, "Plugin attached. SDK initialization will be triggered from Dart.",
             mapOf("channel" to "eggybyte_content", "applicationContextSet" to (applicationContext != null))
         )
     }
 
-    // This method is kept for direct initialization if ever needed internally,
-    // but the primary flow is via the method channel call.
-    // private fun initializePangleSDKs(context: Context) { ... } // Commenting out or removing if not used
-
-    // This method is kept for direct initialization if ever needed internally.
-    // private fun initializeEggyByteContentSDK(context: Context) { ... } // Commenting out or removing
-
-    // This method is kept for direct initialization if ever needed internally.
-    // private fun startEggyByteContentSDKService() { ... } // Commenting out or removing
-
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         PluginLogger.d(CLASS_NAME, "onMethodCall received", mapOf("method" to call.method, "arguments" to call.arguments))
         when (call.method) {
-            "getPlatformVersion" -> {
+            MethodNames.GET_PLATFORM_VERSION -> {
                 val platformVersion = "Android ${android.os.Build.VERSION.RELEASE}"
                 PluginLogger.i(CLASS_NAME, "getPlatformVersion returning: *$platformVersion*")
                 result.success(platformVersion)
             }
-            "initializeSdk" -> {
-                val pangleAppId = call.argument<String>("pangleAppId")
-                val pangleAppName = call.argument<String>("pangleAppName")
-                val eggyByteConfigFileName = call.argument<String>("eggyByteConfigFileName")
+            MethodNames.INITIALIZE_KS_SDK -> {
+                val ksAppId = call.argument<String>("ksAppId")
+                val ksAppName = call.argument<String>("ksAppName")
 
-                PluginLogger.i(CLASS_NAME, "initializeSdk called with:",
+                PluginLogger.i(CLASS_NAME, "${MethodNames.INITIALIZE_KS_SDK} called with:",
                     mapOf(
-                        "pangleAppId" to pangleAppId,
-                        "pangleAppName" to pangleAppName,
-                        "eggyByteConfigFileName" to eggyByteConfigFileName
+                        "ksAppId" to ksAppId,
+                        "ksAppName" to ksAppName
                     )
                 )
 
-                if (pangleAppId == null || pangleAppName == null || eggyByteConfigFileName == null) {
-                    PluginLogger.e(CLASS_NAME, "initializeSdk: Invalid arguments - Missing Pangle App ID, App Name, or EggyByte Config File Name",
+                if (ksAppId == null || ksAppName == null) { 
+                    val errorMessage = "Missing Kuaishou ksAppId or ksAppName."
+                    PluginLogger.e(CLASS_NAME, "${MethodNames.INITIALIZE_KS_SDK}: $errorMessage",
                         context = mapOf(
-                            "pangleAppId_isNull" to (pangleAppId == null),
-                            "pangleAppName_isNull" to (pangleAppName == null),
-                            "eggyByteConfigFileName_isNull" to (eggyByteConfigFileName == null)
+                            "ksAppId_isNull" to (ksAppId == null),
+                            "ksAppName_isNull" to (ksAppName == null)
                         )
                     )
-                    result.error("INVALID_ARGUMENTS", "Missing Pangle App ID, App Name, or EggyByte Config File Name", null)
+                    result.error("INVALID_ARGUMENTS", errorMessage, null)
                     return
                 }
-                performFullSdkInitialization(pangleAppId, pangleAppName, eggyByteConfigFileName, result)
-            }
-            "triggerDpsdkStart" -> {
-                PluginLogger.i(CLASS_NAME, "triggerDpsdkStart called.")
-                triggerDpsdkStartCommand(result)
+                performKsSdkInitialization(ksAppId, ksAppName, result)
             }
             else -> {
                 PluginLogger.w(CLASS_NAME, "Method *${call.method}* not implemented.")
@@ -125,112 +117,67 @@ class EggybyteContentPlugin :
         }
     }
 
-    private fun performFullSdkInitialization(pangleAppId: String, pangleAppName: String, eggyByteConfigFileName: String, flutterResult: Result) {
-        PluginLogger.i(CLASS_NAME, "performFullSdkInitialization started.")
+    private fun performKsSdkInitialization(appId: String, appName: String, flutterResult: MethodChannel.Result) {
+        PluginLogger.i(CLASS_NAME, "performKsSdkInitialization started.")
         val currentContext = applicationContext ?: run {
-            PluginLogger.e(CLASS_NAME, "performFullSdkInitialization: ApplicationContext is null.")
-            flutterResult.error("CONTEXT_NOT_AVAILABLE", "ApplicationContext is null during SDK initialization", null)
+            PluginLogger.e(CLASS_NAME, "performKsSdkInitialization: ApplicationContext is null.")
+            flutterResult.error("CONTEXT_NOT_AVAILABLE", "ApplicationContext is null during KS SDK initialization", null)
             return
         }
 
-        PluginLogger.d(CLASS_NAME, "Pangle Ad SDK Configuration:",
-            mapOf(
-                "appId" to pangleAppId,
-                "appName" to pangleAppName,
-                "useTextureView" to true, // As per guide recommendation
-                "titleBarTheme" to "TTAdConstant.TITLE_BAR_THEME_DARK",
-                "allowShowNotify" to true,
-                "directDownloadNetworkType" to "WIFI, MOBILE",
-                "supportMultiProcess" to false,
-                "debug" to true // Should be configurable or false for release
-            )
-        )
-
-        val config = InitConfig(pangleAppId, "channel1")
-        config.setUriConfig (UriConstants.DEFAULT)
-        AppLog.setEncryptAndCompress(true)
-        config.setAutoStart(true)
-        AppLog.init(currentContext, config)
-
-        val ttAdConfig = TTAdConfig.Builder()
-            .appId(pangleAppId)
-            .appName(pangleAppName)
-            .titleBarTheme(TTAdConstant.TITLE_BAR_THEME_DARK)
-            .allowShowNotify(true)
-            .directDownloadNetworkType(TTAdConstant.NETWORK_STATE_WIFI, TTAdConstant.NETWORK_STATE_MOBILE)
-            .supportMultiProcess(false) // Adjust based on app needs
-            .debug(true) // Set to false for release, or make configurable
-            // .customController(YourPrivacyController()) // Optional, if privacy controls are needed
-            .build()
-
-        PluginLogger.i(CLASS_NAME, "Attempting TTAdSdk.init and TTAdSdk.start...")
+        if (EggybyteContentPlugin.ksSdkHasBeenInitialized) {
+            PluginLogger.i(CLASS_NAME, "KS SDK already initialized.")
+            flutterResult.success(mapOf("status" to true, "message" to "KS SDK already initialized."))
+            return
+        }
         
-        // Initialize Pangle Ad SDK with context and config first
-        TTAdSdk.init(currentContext, ttAdConfig)
-        PluginLogger.i(CLASS_NAME, "TTAdSdk.init(Context, Config) called.")
-
-        // Then start the SDK with a callback.
-        // Assuming TTAdSdk.InitCallback is the correct type of TTAdSdk.Callback expected by start().
-        TTAdSdk.start(object : TTAdSdk.Callback {
-            override fun success() {
-                PluginLogger.i(CLASS_NAME, "Pangle Ad SDK started *successfully* via start(Callback).")
-                initializeEggyByteContentSDKInternal(currentContext, eggyByteConfigFileName, flutterResult)
-            }
-
-            override fun fail(code: Int, msg: String?) {
-                PluginLogger.e(CLASS_NAME, "Pangle Ad SDK start(Callback) *failed*.",
-                    context = mapOf("code" to code, "message" to msg)
-                )
-                flutterResult.error("PANGLE_AD_INIT_FAILED", "Pangle Ad SDK start(Callback) failed: $msg", "Code: $code")
-            }
-        })
-    }
-
-    private fun initializeEggyByteContentSDKInternal(
-        context: Context,
-        eggyByteConfigFileName: String,
-        flutterResult: Result
-    ) {
-        PluginLogger.i(CLASS_NAME, "initializeEggyByteContentSDKInternal called.",
-            mapOf("eggyByteConfigFileName" to eggyByteConfigFileName)
-        )
-        try {
-            val configBuilder = DPSdkConfig.Builder()
-                .debug(true)
-            PluginLogger.d(CLASS_NAME, "DPSdkConfig.Builder created with debug: *true*")
-
-            DPSdk.init(context, eggyByteConfigFileName, configBuilder.build())
-            PluginLogger.i(CLASS_NAME, "DPSdk.init() called with config file: *$eggyByteConfigFileName*.")
-            flutterResult.success(mapOf("message" to "SDK initialization process started. Call triggerDpsdkStart next."))
-        } catch (e: Exception) {
-            PluginLogger.e(CLASS_NAME, "EggyByte Content SDK (DPSdk) initialization failed.", throwable = e,
-                context = mapOf("configFileName" to eggyByteConfigFileName)
+        PluginLogger.d(CLASS_NAME, "Kuaishou SDK Configuration:",
+            mapOf(
+                "appId" to appId,
+                "appName" to appName,
+                "enableDebug" to true, 
+                "showNotification" to true
             )
-            flutterResult.error("EGGYBYTE_INIT_FAILED", "DPSdk.init failed: ${e.message}", null)
-        }
-    }
+        )
 
-    private fun triggerDpsdkStartCommand(flutterResult: Result) {
-        PluginLogger.i(CLASS_NAME, "triggerDpsdkStartCommand invoked.")
-        if (applicationContext == null) {
-            PluginLogger.e(CLASS_NAME, "triggerDpsdkStartCommand: ApplicationContext is *null*.")
-            flutterResult.error("CONTEXT_NOT_AVAILABLE", "ApplicationContext is null, cannot start DPSdk service.", null)
-            return
-        }
-        if (!TTAdSdk.isSdkReady()) {
-            PluginLogger.w(CLASS_NAME, "triggerDpsdkStartCommand: Pangle Ad SDK not ready (TTAdSdk.isSdkReady() is *false*).")
-            flutterResult.error("PANGLE_SDK_NOT_READY", "Pangle Ad SDK is not ready. DPSdk.start requires Pangle SDK to be initialized.", null)
-            return
-        }
-        PluginLogger.i(CLASS_NAME, "Pangle Ad SDK is ready. Calling DPSdk.start...")
-        DPSdk.start { isSuccess, message ->
-            if (isSuccess) {
-                PluginLogger.i(CLASS_NAME, "DPSdk service started *successfully*.", mapOf("message" to message))
-                flutterResult.success(mapOf("isSuccess" to true, "message" to (message ?: "DPSdk service started successfully.")))
-            } else {
-                PluginLogger.e(CLASS_NAME, "DPSdk service start *failed*.", context = mapOf("message" to message))
-                flutterResult.success(mapOf("isSuccess" to false, "message" to (message ?: "DPSdk service start failed.")))
-            }
+        try {
+            val sdkConfigBuilder = SdkConfig.Builder()
+                .appId(appId) 
+                .appName(appName) 
+                .showNotification(true) 
+                .debug(true)
+                .setInitCallback(object : KsInitCallback {
+                    override fun onSuccess() {
+                        PluginLogger.i(CLASS_NAME, "KS SDK KsInitCallback: onSuccess. Waiting for StartCallback.")
+                    }
+
+                    override fun onFail(code: Int, msg: String?) {
+                        PluginLogger.e(CLASS_NAME, "KS SDK KsInitCallback: onFail.", context = mapOf("code" to code, "message" to msg))
+                    }
+                })
+                .setStartCallback(object : KsInitCallback { 
+                    override fun onSuccess() {
+                        PluginLogger.i(CLASS_NAME, "KS SDK started successfully (via StartCallback).")
+                        EggybyteContentPlugin.ksSdkHasBeenInitialized = true
+                        flutterResult.success(mapOf("status" to true, "message" to "KS SDK initialized and started successfully."))
+                    }
+
+                    override fun onFail(code: Int, msg: String?) {
+                        PluginLogger.e(CLASS_NAME, "KS SDK start failed (via StartCallback).", context = mapOf("code" to code, "message" to msg))
+                        EggybyteContentPlugin.ksSdkHasBeenInitialized = false 
+                        flutterResult.error("KS_SDK_START_FAILED", "KS SDK start failed: $msg", "Code: $code")
+                    }
+                })
+            
+            val sdkConfig = sdkConfigBuilder.build()
+
+            PluginLogger.i(CLASS_NAME, "Attempting KsAdSDK.init...")
+            KsAdSDK.init(currentContext, sdkConfig)
+            KsAdSDK.start();
+        } catch (e: Exception) {
+            PluginLogger.e(CLASS_NAME, "Exception during KS SDK initialization call (KsAdSDK.init).", throwable = e)
+            EggybyteContentPlugin.ksSdkHasBeenInitialized = false
+            flutterResult.error("KS_SDK_INIT_EXCEPTION", "Exception during KsAdSDK.init: ${e.message}", null)
         }
     }
 

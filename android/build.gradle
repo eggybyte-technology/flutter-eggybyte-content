@@ -63,24 +63,10 @@ android {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         implementation "androidx.core:core-ktx:1.16.0"
         implementation "androidx.appcompat:appcompat:1.7.0"
-        implementation "androidx.recyclerview:recyclerview:1.2.1"
-        implementation "androidx.constraintlayout:constraintlayout:1.1.2"
-        implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-        implementation "com.squareup.okhttp3:okhttp:4.12.0"
-        implementation "com.bytedance:open_ad_sdk:1.0.0"
+        implementation "androidx.recyclerview:recyclerview:1.4.0"
+        implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
-        // implementation 'com.pangle.cn:ads-sdk-pro:6.5.1.0'
-        // implementation(name: 'open_ad_sdk', ext: 'aar')
-        // implementation fileTree(dir: 'libs', include: '*.aar')
-        implementation ('com.pangle.cn:pangrowth-sdk:4.4.0.0'){
-            exclude group: 'com.pangle.cn', module: 'partner-live-sdk'
-            exclude group: 'com.pangle.cn', module: 'pangrowth-novel-sdk'
-            exclude group: 'com.pangle.cn', module: 'pangrowth-game-sdk'
-            exclude group: 'com.pangle.cn', module: 'pangrowth-luckycat-sdk'
-            exclude group: 'com.pangle.cn', module: 'pangrowth-reward-sdk'
-            exclude group: 'com.pangle.cn', module: 'partner-luckycat-api-sdk'
-            exclude group: 'com.pangle.cn', module: 'pangrowth-luckycat-api'
-        }
+        implementation "com.eggybyte:kssdk:1.0.0"
     }
 
     testOptions {
