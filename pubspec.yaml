@@ -1,5 +1,5 @@
 name: eggybyte_content
-description: "A new Flutter plugin project."
+description: "The eggybyte_content Flutter plugin provides a Dart interface for integrating third-party native SDKs to display rich content formats, such as short videos and content feeds. This initial version focuses on integrating the Kuaishou SDK for Android to display dual-feed content."
 version: 1.0.0
 repository: https://github.com/eggybyte-technology/flutter-eggybyte-content
 
