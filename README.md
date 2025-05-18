@@ -10,7 +10,7 @@
 
 ## 📋 Overview
 
-The `eggybyte_content` Flutter plugin provides a Dart interface for integrating third-party native SDKs to display rich content formats, such as short videos and content feeds. This initial version focuses on integrating the Kuaishou (快手) SDK for Android to display dual-feed content.
+The `eggybyte_content` Flutter plugin provides a Dart interface for integrating third-party native SDKs to display rich content formats, such as short videos and content feeds. This initial version focuses on integrating the Kuaishou SDK for Android to display dual-feed content.
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@ The `eggybyte_content` Flutter plugin provides a Dart interface for integrating 
 
 ## 🏗️ Plugin Architecture (Dart)
 
-The plugin follows a standard three-layer architecture as outlined in the [Development Guide](flutter_eggybyte_content_development_guide.mdc):
+The plugin follows a standard three-layer architecture:
 
 ```mermaid
 graph TD
@@ -164,10 +164,6 @@ eggybyte_content/
 ├── pubspec.yaml
 └── README.md
 ```
-
-## 🤝 Contribution
-
-This plugin is currently under active development. For contributions, please refer to the [Development Guide](flutter_eggybyte_content_development_guide.mdc) and adhere to the established coding standards and architecture.
 
 ## 📜 License
 
