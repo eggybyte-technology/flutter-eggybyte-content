@@ -1,0 +1,165 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.eggybyte.content">
+
+    <!-- <application>
+
+        <activity
+            android:name=".view.VideoActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoBottomTabActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoChannelActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoFullScreenActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoFullScreenHostActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoFullScreenQuizActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoFullScreenUserActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoFullScreenV11Activity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.draw.DrawVideoTopTabActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.grid.GridBottomTabActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.grid.GridFullScreenActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.grid.GridFullScreenV11Activity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.grid.GridTopTabActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.grid.StaggeredGridFullScreenActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.push.VideoPushActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.push.VideoPushReceiveActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.DrawVideoActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.HomePageContentActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCard14Activity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCard14CustomDislikeActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCard24Activity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCardCustomActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCardDialogActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoCardNewsActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoHomePageActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.VideoTogetherActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.WidgetActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".view.GridVideoActivity"
+            android:configChanges="keyboard|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+    </application> -->
+    
+</manifest>
