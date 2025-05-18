@@ -30,9 +30,9 @@ The plugin follows a standard three-layer architecture:
 
 ```mermaid
 graph TD
-    A[eggybyte_content.dart (Main Plugin API)] -->|uses| B(eggybyte_content_platform_interface.dart);
-    B -->|implemented by| C(eggybyte_content_method_channel.dart);
-    C -->|invokes| D[Native Code (Android/iOS)];
+    A["eggybyte_content.dart (Main Plugin API)"] -->|uses| B["eggybyte_content_platform_interface.dart"]
+    B -->|implemented by| C["eggybyte_content_method_channel.dart"]
+    C -->|invokes| D["Native Code (Android/iOS)"]
 ```
 
 - **Main Plugin API (`lib/eggybyte_content.dart`)**: Provides user-friendly Widgets and methods.
