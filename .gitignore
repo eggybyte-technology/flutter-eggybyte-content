@@ -34,5 +34,7 @@ build/
 # Cursor
 .cursor
 
-others/
+__others/
 example/
+/android/libs/
+*.arr
