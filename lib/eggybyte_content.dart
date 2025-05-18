@@ -5,9 +5,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'eggybyte_content_platform_interface.dart';
-// Listeners are kept in case KS SDK provides events later, but not used by KsDualFeedView for now.
-import 'src/eggybyte_content_listeners.dart';
-export 'src/eggybyte_content_listeners.dart';
+import 'src/ks_feed_event_listener.dart';
+
+// Export necessary classes for plugin users
+export 'src/ks_feed_event_listener.dart'
+    show KsFeedEventListener, KsContentItem, KsTubeData;
+export 'eggybyte_content_platform_interface.dart'
+    show
+        EggybyteContentPlatform; // Already effectively done by plugin_platform_interface
 
 // --- Parameter Data Classes for Platform Views ---
 
@@ -65,6 +70,35 @@ class EggybyteContent {
       ksAppId: ksAppId,
       ksAppName: ksAppName,
     );
+  }
+
+  /// Checks if the Kuaishou SDK has been initialized on the native side.
+  ///
+  /// Returns `true` if initialized, `false` otherwise. If the platform call
+  /// fails or returns null, it defaults to `false`.
+  Future<bool> checkKsSdkInitializationStatus() {
+    return EggybyteContentPlatform.instance.checkKsSdkInitializationStatus();
+  }
+
+  /// Sets the listener for Kuaishou feed page events.
+  ///
+  /// Implement [KsFeedEventListener] and pass your instance to this method
+  /// to receive callbacks for various feed page events like page lifecycle,
+  /// video playback, and share actions from the Kuaishou SDK.
+  ///
+  /// Call [clearKsFeedEventListener] to remove the listener when it's no longer needed.
+  ///
+  /// - [listener]: The [KsFeedEventListener] to register.
+  void setKsFeedEventListener(KsFeedEventListener listener) {
+    EggybyteContentPlatform.instance.setKsFeedEventListener(listener);
+  }
+
+  /// Clears the currently registered Kuaishou feed event listener.
+  ///
+  /// Call this method when you no longer need to listen to feed events,
+  /// for example, when a widget is disposed or you want to stop receiving events.
+  void clearKsFeedEventListener() {
+    EggybyteContentPlatform.instance.clearKsFeedEventListener();
   }
 }
 

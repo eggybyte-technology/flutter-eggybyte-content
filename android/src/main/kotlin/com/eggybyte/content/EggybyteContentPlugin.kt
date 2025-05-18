@@ -14,8 +14,22 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-
-/** EggybyteContentPlugin */
+/**
+ * Main plugin class for the `eggybyte_content` Flutter plugin.
+ *
+ * This class handles method channel communication between Flutter and the native Android platform.
+ * It is responsible for:
+ * 1. Receiving method calls from Dart (e.g., to initialize SDKs).
+ * 2. Executing native code based on these calls (e.g., initializing the Kuaishou SDK).
+ * 3. Returning results (success or error) back to Dart.
+ * 4. Registering [PlatformViewFactory] instances for embedding native views (e.g., Kuaishou feeds).
+ *
+ * It implements [FlutterPlugin] to be recognized by the Flutter engine and to access
+ * resources like [BinaryMessenger] and [ApplicationContext].
+ * It also implements [ActivityAware] to get a reference to the current Android [Activity],
+ * which is often necessary for UI-related SDK operations or when an [Activity] context is required.
+ * It implements [MethodCallHandler] to process incoming method calls on its [MethodChannel].
+ */
 class EggybyteContentPlugin :
     FlutterPlugin,
     MethodCallHandler,
@@ -28,8 +42,15 @@ class EggybyteContentPlugin :
     private var applicationContext: Context? = null
     private var activity: Activity? = null
 
-    // Use a companion object for the logger tag specific to this class
+    /**
+     * Companion object for [EggybyteContentPlugin].
+     * Holds static properties and utility methods related to the plugin.
+     */
     companion object {
+        /**
+         * Tag used for logging within the [EggybyteContentPlugin] class.
+         * Uses the simple name of the class for consistency.
+         */
         private val CLASS_NAME = EggybyteContentPlugin::class.java.simpleName
         // Static reference to FlutterPluginBinding for access from PlatformViews
         // This should be initialized in onAttachedToEngine and cleared in onDetachedFromEngine
@@ -41,6 +62,10 @@ class EggybyteContentPlugin :
         @JvmStatic
         private var ksSdkHasBeenInitialized: Boolean = false
 
+        /**
+         * Checks if the Kuaishou SDK has been initialized.
+         * @return `true` if the KS SDK is initialized, `false` otherwise.
+         */
         @JvmStatic
         fun isKsSdkInitialized(): Boolean {
             return ksSdkHasBeenInitialized
@@ -51,6 +76,7 @@ class EggybyteContentPlugin :
     private object MethodNames {
         const val GET_PLATFORM_VERSION = "getPlatformVersion"
         const val INITIALIZE_KS_SDK = "initializeKsSdk" // Kuaishou
+        const val CHECK_KS_SDK_INITIALIZATION_STATUS = "checkKsSdkInitializationStatus" // Kuaishou
     }
 
     // Platform view type names
@@ -58,6 +84,15 @@ class EggybyteContentPlugin :
         const val KS_DUAL_FEED_VIEW = "com.eggybyte/ks_dual_feed_view" // Kuaishou
     }
 
+    /**
+     * Called when the plugin is attached to the Flutter engine.
+     *
+     * This is the first lifecycle method called. It is responsible for setting up
+     * the [MethodChannel], context, and registering any [PlatformViewFactory] instances.
+     *
+     * @param flutterPluginBinding Provides access to Flutter engine services like [BinaryMessenger]
+     *                             and [ApplicationContext].
+     */
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         Companion.flutterPluginBinding = flutterPluginBinding // Store for static access
         PluginLogger.i(CLASS_NAME, "onAttachedToEngine called.")
@@ -78,6 +113,12 @@ class EggybyteContentPlugin :
         )
     }
 
+    /**
+     * Called when a method is invoked on this plugin's [MethodChannel] from the Dart side.
+     *
+     * @param call The [MethodCall] object containing the method name and arguments.
+     * @param result The [Result] object used to send a response (success or error) back to Dart.
+     */
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         PluginLogger.d(CLASS_NAME, "onMethodCall received", mapOf("method" to call.method, "arguments" to call.arguments))
         when (call.method) {
@@ -110,6 +151,11 @@ class EggybyteContentPlugin :
                 }
                 performKsSdkInitialization(ksAppId, ksAppName, result)
             }
+            MethodNames.CHECK_KS_SDK_INITIALIZATION_STATUS -> {
+                val isInitialized = isKsSdkInitialized()
+                PluginLogger.i(CLASS_NAME, "${MethodNames.CHECK_KS_SDK_INITIALIZATION_STATUS} returning: $isInitialized")
+                result.success(isInitialized)
+            }
             else -> {
                 PluginLogger.w(CLASS_NAME, "Method *${call.method}* not implemented.")
                 result.notImplemented()
@@ -117,6 +163,18 @@ class EggybyteContentPlugin :
         }
     }
 
+    /**
+     * Performs the initialization of the Kuaishou (KS) SDK.
+     *
+     * This method constructs the [SdkConfig] for the KS SDK, initiates the SDK initialization,
+     * and uses callbacks to report the success or failure asynchronously to the [flutterResult].
+     * It also checks if the SDK has already been initialized to prevent redundant calls.
+     *
+     * @param appId The Kuaishou application ID, must not be null.
+     * @param appName The Kuaishou application name, must not be null.
+     * @param flutterResult The [MethodChannel.Result] to which the outcome of the SDK initialization
+     *                      is reported.
+     */
     private fun performKsSdkInitialization(appId: String, appName: String, flutterResult: MethodChannel.Result) {
         PluginLogger.i(CLASS_NAME, "performKsSdkInitialization started.")
         val currentContext = applicationContext ?: run {
@@ -181,6 +239,14 @@ class EggybyteContentPlugin :
         }
     }
 
+    /**
+     * Called when the plugin is detached from the Flutter engine.
+     *
+     * This is the final lifecycle method. It should clean up any resources, such as
+     * nullifying the [MethodChannel] handler and context references.
+     *
+     * @param binding Provides access to Flutter engine services.
+     */
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         PluginLogger.i(CLASS_NAME, "onDetachedFromEngine called.")
         channel.setMethodCallHandler(null)
@@ -190,21 +256,38 @@ class EggybyteContentPlugin :
     }
 
     // ActivityAware Implementation
+    /**
+     * Called when the plugin is attached to an [Activity].
+     * @param binding Provides the [Activity] and lifecycle callbacks.
+     */
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
         PluginLogger.i(CLASS_NAME, "onAttachedToActivity: Activity *${activity?.localClassName}* attached.")
     }
 
+    /**
+     * Called when the plugin is detached from an [Activity] due to configuration changes.
+     * The [Activity] reference should be cleared.
+     */
     override fun onDetachedFromActivityForConfigChanges() {
         PluginLogger.i(CLASS_NAME, "onDetachedFromActivityForConfigChanges: Activity *${activity?.localClassName}* detached for config changes.")
         activity = null
     }
 
+    /**
+     * Called when the plugin is reattached to an [Activity] after configuration changes.
+     * The [Activity] reference should be updated.
+     * @param binding Provides the new [Activity] and lifecycle callbacks.
+     */
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activity = binding.activity
         PluginLogger.i(CLASS_NAME, "onReattachedToActivityForConfigChanges: Activity *${activity?.localClassName}* re-attached.")
     }
 
+    /**
+     * Called when the plugin is detached from an [Activity].
+     * The [Activity] reference should be cleared.
+     */
     override fun onDetachedFromActivity() {
         PluginLogger.i(CLASS_NAME, "onDetachedFromActivity: Activity *${activity?.localClassName}* detached.")
         activity = null

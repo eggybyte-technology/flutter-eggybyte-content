@@ -14,8 +14,14 @@ The `eggybyte_content` Flutter plugin provides a Dart interface for integrating 
 
 ## ✨ Features
 
-- **Kuaishou SDK Integration**: Seamlessly initialize and use the Kuaishou SDK on Android.
-- **Dual Feed Display**: Embed Kuaishou's dual feed content directly into your Flutter application using a PlatformView.
+- **Kuaishou SDK Integration (Android)**:
+    - Seamless initialization of the Kuaishou SDK.
+    - Display Kuaishou's dual feed content directly within your Flutter application using a `PlatformView`.
+    - Comprehensive event handling for user interactions and content lifecycle:
+        - Page Events: `onPageEnter`, `onPageResume`, `onPagePause`, `onPageLeave`.
+        - Video Events: `onVideoPlayStart`, `onVideoPlayPaused`, `onVideoPlayResume`, `onVideoPlayCompleted`, `onVideoPlayError`.
+        - Share Events: `onClickShareButton`.
+- **Decoupled Event Forwarding (Android)**: Robust and maintainable system for sending events from native Android to Flutter.
 - **Extensible Architecture**: Designed to support additional content SDKs and platforms in the future.
 
 ## 🏗️ Plugin Architecture (Dart)
@@ -65,18 +71,25 @@ graph TD
 ### ⚙️ Native Configuration (Android)
 
 1.  **Kuaishou App ID and App Name**: Obtain these credentials from the Kuaishou platform.
-2.  **`MainActivity.kt` (or `.java`)**: Ensure your application's main Android Activity (usually located at `android/app/src/main/kotlin/.../MainActivity.kt`) extends `FlutterFragmentActivity` to support fragment-based PlatformViews:
+
+2.  **⚠️ Important: `MainActivity.kt` (or `.java`) Configuration**
+
+    To ensure that native Android `Fragment` based views (like the Kuaishou feed) can be correctly embedded and displayed within your Flutter application, your app's main Android `Activity` **MUST** extend `io.flutter.embedding.android.FlutterFragmentActivity`.
+
+    Modify your `android/app/src/main/kotlin/.../MainActivity.kt` (or the Java equivalent) as follows:
 
     ```kotlin
     // In your app's MainActivity.kt
     package com.example.your_app_package // Replace with your app's package
 
-    import io.flutter.embedding.android.FlutterFragmentActivity
+    import io.flutter.embedding.android.FlutterFragmentActivity // Ensure this import is present
 
     class MainActivity: FlutterFragmentActivity() {
-        // No further modifications needed for basic Kuaishou feed display.
+        // No further modifications are typically needed here for the Kuaishou feed display
+        // unless you have other specific Activity lifecycle requirements.
     }
     ```
+    Failure to do this will result in errors when trying to display the Kuaishou feed view, as it relies on Android Fragment management provided by `FlutterFragmentActivity`.
 
 3.  **Permissions**: The Kuaishou SDK may require certain permissions. Ensure your app's `AndroidManifest.xml` (usually at `android/app/src/main/AndroidManifest.xml`) includes necessary permissions like internet access:
     ```xml
@@ -146,7 +159,12 @@ eggybyte_content/
 │           ├── kotlin/com/eggybyte/content/
 │           │   ├── EggybyteContentPlugin.kt    # Main plugin class
 │           │   ├── KsDualFeedFactory.kt      # PlatformView Factory
-│           │   └── KsDualFeedPlatformView.kt # PlatformView Implementation
+│           │   ├── KsDualFeedPlatformView.kt # PlatformView Implementation
+│           │   ├── KsPageListenerImpl.kt     # Kuaishou Page Event Listener
+│           │   ├── KsVideoListenerImpl.kt    # Kuaishou Video Event Listener
+│           │   ├── KsShareListenerImpl.kt    # Kuaishou Share Event Listener
+│           │   ├── NativeToFlutterEventForwarder.kt # Generic Native-to-Flutter Event Forwarder
+│           │   └── KsEventForwarder.kt       # Kuaishou-specific Event Forwarder
 │           └── AndroidManifest.xml
 ├── example/              # Example Flutter application demonstrating usage
 │   ├── lib/main.dart     # Main example code
