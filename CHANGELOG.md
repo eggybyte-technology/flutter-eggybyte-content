@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.0.0-alpha
 
 - Successfully implemented core Android functionalities for the `eggybyte_content` plugin.
 - Added Kuaishou SDK integration for Android:

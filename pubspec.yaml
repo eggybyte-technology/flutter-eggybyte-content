@@ -4,7 +4,7 @@ version: 1.0.0
 repository: https://github.com/eggybyte-technology/flutter-eggybyte-content
 
 environment:
-  sdk: ^3.9.0-63.0.dev
+  sdk: '>=3.3.0'
   flutter: '>=3.3.0'
 
 dependencies:
