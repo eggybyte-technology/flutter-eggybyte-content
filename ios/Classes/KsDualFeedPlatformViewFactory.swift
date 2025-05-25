@@ -1,6 +1,5 @@
 import Flutter
 import Foundation
-import KSAdSDK // Ensure this is imported if KSAdSDK types are directly used by factory, though likely not here.
 
 /**
  * Factory for creating `KsDualFeedPlatformView` instances.
@@ -10,8 +9,12 @@ import KSAdSDK // Ensure this is imported if KSAdSDK types are directly used by 
  * It receives creation arguments from Flutter, such as the `posId`.
  */
 class KsDualFeedPlatformViewFactory: NSObject, FlutterPlatformViewFactory {
+    
+    /// The binary messenger for communication with Flutter
     private var messenger: FlutterBinaryMessenger
-    private var channel: FlutterMethodChannel // Main plugin channel for sending events back to Dart
+    
+    /// The main method channel of the plugin, used by platform views to send events back to Dart
+    private var channel: FlutterMethodChannel
 
     /**
      * Initializes the factory.
@@ -24,6 +27,7 @@ class KsDualFeedPlatformViewFactory: NSObject, FlutterPlatformViewFactory {
         self.messenger = messenger
         self.channel = channel
         super.init()
+        PluginLogger.info("KsDualFeedPlatformViewFactory initialized", category: .platformView)
     }
 
     /**
@@ -41,12 +45,19 @@ class KsDualFeedPlatformViewFactory: NSObject, FlutterPlatformViewFactory {
         viewIdentifier viewId: Int64,
         arguments args: Any?
     ) -> FlutterPlatformView {
+        PluginLogger.info("Creating KsDualFeedPlatformView with viewId: \(viewId)", category: .platformView)
+        PluginLogger.debug("Creation arguments: \(String(describing: args))", category: .platformView)
+        
+        // Check if KS SDK is initialized before creating view
+        if !EggybyteContentPlugin.ksSdkHasBeenInitialized {
+            PluginLogger.warning("KS SDK not initialized. View may not work correctly", category: .platformView)
+        }
+        
         return KsDualFeedPlatformView(
             frame: frame,
             viewIdentifier: viewId,
             arguments: args,
-            // binaryMessenger: messenger, // Messenger is available if needed directly by view
-            channel: channel // Pass the main channel for event communication
+            channel: channel
         )
     }
 

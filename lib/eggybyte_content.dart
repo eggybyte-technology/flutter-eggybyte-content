@@ -117,12 +117,12 @@ class KsDualFeedView extends StatelessWidget {
   final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
 
   const KsDualFeedView({
-    Key? key,
+    super.key,
     required this.params,
     // this.drawListener,
     // this.adListener,
     this.gestureRecognizers,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,12 +146,28 @@ class KsDualFeedView extends StatelessWidget {
           // }
           if (kDebugMode) {
             print(
-              'KsDualFeedView with id $id created. Creation params: ${params.toMap()}',
+              'KsDualFeedView (Android) with id $id created. Creation params: ${params.toMap()}',
+            );
+          }
+        },
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return UiKitView(
+        viewType: EggybyteContent.ksDualFeedViewType,
+        layoutDirection: TextDirection.ltr,
+        creationParams: params.toMap(),
+        creationParamsCodec: const StandardMessageCodec(),
+        gestureRecognizers: gestureRecognizers,
+        onPlatformViewCreated: (int id) {
+          if (kDebugMode) {
+            print(
+              'KsDualFeedView (iOS) with id $id created. Creation params: ${params.toMap()}',
             );
           }
         },
       );
     }
+
     // Placeholder for other platforms or if unsupported
     return Center(
       child: Text(

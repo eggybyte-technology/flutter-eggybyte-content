@@ -35,8 +35,9 @@ class KsTubeData {
 
   /// Creates an instance of [KsTubeData] from a map (typically from method channel).
   factory KsTubeData.fromMap(Map<String, dynamic>? map) {
-    if (map == null)
+    if (map == null) {
       return KsTubeData(); // Or throw error, or return pre-defined empty
+    }
     return KsTubeData(
       authorId: map['authorId'] as String?,
       authorName: map['authorName'] as String?,
@@ -97,8 +98,9 @@ class KsContentItem {
 
   /// Creates an instance of [KsContentItem] from a map (typically from method channel).
   factory KsContentItem.fromMap(Map<String, dynamic>? map) {
-    if (map == null)
+    if (map == null) {
       return KsContentItem(); // Or throw error, or return pre-defined empty
+    }
     return KsContentItem(
       contentId: map['contentId'] as String?,
       position: map['position'] as int?,

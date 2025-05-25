@@ -5,11 +5,11 @@
 Pod::Spec.new do |s|
   s.name             = 'eggybyte_content'
   s.version          = '1.0.0'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'A Flutter plugin for Kuaishou content integration'
   s.description      = <<-DESC
-A new Flutter plugin project.
+A Flutter plugin that provides Kuaishou content integration capabilities, including feed views and video content.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://www.eggybyte.com'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'EggyByte Technology 2025' => 'affair@eggybyte.com' }
   s.source           = { :path => '.' }
@@ -18,10 +18,13 @@ A new Flutter plugin project.
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.pod_target_xcconfig = { 
+    'DEFINES_MODULE' => 'YES',
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386'
+  }
   s.swift_version = '5.0'
 
-  s.dependency 'KSAdSDK','3.3.76.5'
+  s.dependency 'KSAdSDK', '1.0.0'
 
   # If your plugin requires a privacy manifest, for example if it uses any
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
